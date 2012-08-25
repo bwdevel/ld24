@@ -5,6 +5,6 @@ A Ludum Dare #24 Entry
 ----------------------
 
 Contributors:
--  bwdevel
--  innidael
--  isoterix
+-  bwdevel - code/art
+-  innidael - code
+-  isoteric - music 
