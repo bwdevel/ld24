@@ -5,6 +5,9 @@
 --      == == ==    == == ==    ==    ==    == ==    
 
 function love.load()
+	-- Entity module
+	require("resources/entities")
+	ents.Startup()
 end
 
 
@@ -15,6 +18,8 @@ end
 --      == == ==    ==          == ==       ==    ==       ==       == == ==
 
 function love.update(dt)
+	-- Update entities
+	ents:update(dt)
 end
 
 
@@ -25,6 +30,8 @@ end
 --     == ==       ==   ==     ==    ==    ==    ==
 
 function love.draw()
+	-- Draw entities
+	ents:draw()
 end
 
 function love.focus(bool)

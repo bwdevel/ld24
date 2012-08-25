@@ -1,3 +1,4 @@
+-- A very basic entity.
 local base = {}
 
 base.x = 0
