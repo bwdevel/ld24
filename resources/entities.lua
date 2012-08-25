@@ -8,6 +8,9 @@ local id = 0							-- ID numbers for entities
 -- Register all entities here
 function ents.Startup()
 	ents.Register("box")
+	ents.Register("boxMount")
+	ents.Register("mount")
+	ents.Register("mount2")
 end
 
 function ents.Register( name )
