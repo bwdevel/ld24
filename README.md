@@ -6,5 +6,5 @@ A Ludum Dare #24 Entry
 
 Contributors:
 -  bwdevel
--  innedael
+-  innidael
 -  isoterix
