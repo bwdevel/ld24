@@ -24,6 +24,8 @@ function ent:draw()
 	local x, y = self:getPos()
 	local w, h = self:getSize()
 
+		
+	
 	love.graphics.setColor( 255, 0, 0, 255 )
 	love.graphics.rectangle( "fill", x, y , w , h )
 end
