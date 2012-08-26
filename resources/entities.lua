@@ -11,6 +11,9 @@ function ents.Startup()
 	ents.Register("boxMount")
 	ents.Register("mount")
 	ents.Register("mount2")
+	
+	ents.Register("player")
+	ents.Register("enemy")
 end
 
 function ents.Register( name )
@@ -45,9 +48,7 @@ function ents.Create( name, x, y)
 	if register[ name ] then 
 		id = id + 1
 		local ent = register[ name ]()
-		ent:load()
 		ent.type = name
-		ent:setPos( x, y)
 		ent.id = id
 		ents.objects[ id] = ent -- add new entity
 		return ents.objects[ id ] -- return new entity
