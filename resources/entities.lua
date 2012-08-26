@@ -48,6 +48,7 @@ function ents.Create( name, x, y)
 	if register[ name ] then 
 		id = id + 1
 		local ent = register[ name ]()
+		ent:load(x, y)
 		ent.type = name
 		ent.id = id
 		ents.objects[ id] = ent -- add new entity
