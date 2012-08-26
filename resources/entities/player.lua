@@ -174,8 +174,8 @@ function player:draw()
 	end
 	
 	-- temporary
-	love.graphics.setColor(0,255,0,255)
-	love.graphics.rectangle("fill",self.x,self.y,2,2)
+--	love.graphics.setColor(0,255,0,255)
+--	love.graphics.rectangle("fill",self.x,self.y,2,2)
 	
 	-- draw debug info
 	--self:drawDebug(debug.state)	
@@ -214,6 +214,16 @@ function player:keypressed(key, unicode)
 		else
 			debug.state = true
 		end
+	end
+	if key == "1" then 
+		print("Scale down" .. " " .. tostring(settings.sx))
+		settings.sx = settings.sx - 0.10
+		settings.sy = settings.sy - 0.10
+	end
+	if key == "2" then 
+		print("Scale up" .. " " .. tostring(settings.sx))
+		settings.sx = settings.sx + 0.10
+		settings.sy = settings.sy + 0.10
 	end
 end
 
