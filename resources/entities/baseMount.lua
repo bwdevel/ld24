@@ -23,14 +23,20 @@ function baseMount:initMountPoints(x, y)
 	}
 end
 
-function baseMount:updateMounts( dt )
+function baseMount:updateMounts( dt, px, py, pr, psx, psy )
 	-- update attached mounts
 	for i,mount in pairs( mountPoints ) do
 		if mount and mount.id ~= -1 then
 			--print("update: " .. mount.id)
-			entity = ents.objects[mount.id]
+			entity = ents.objects[mount.id] -- make local?
 			if entity then
-				entity:setPos(mount.x + self.x, mount.y + self.y)
+				--entity:setPos(mount.x + self.x, mount.y + self.y)
+				entity.x = px + entity.ox
+				entity.y = py + entity.oy
+				entity.rot = pr
+				entity.sx = entity.dsx * psx
+				entity.sy = entity.dsy * psy
+
 			else
 				print("Error: Cannot update mountId[" .. i .. "] no entity[" .. mount.id .. "] found!")
 			end

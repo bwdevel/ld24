@@ -1,5 +1,11 @@
 local player = ents.Inherit("baseMount")
 local settings = {}
+local playerImgs = { "player_03a", "player_03b", "player_03c", "player_03d", "player_03e", "player_03f", "player_03g","player_03h", "player_03i"}
+
+settings.sprites= {}
+--playerImgs[1] = "player_03a"
+	
+--}
 
 -- Player bullets
 local bullets = {}
@@ -16,7 +22,7 @@ end
 
 function player:setSprite(sprite)
 	if sprite then
-		settings.sprite = love.graphics.newImage(ents.imgPath .. sprite)
+		settings.sprite = settings.sprites[sprite]
 	else
 		print("Error: Sprite could not be loaded!")
 		return false;
@@ -44,6 +50,9 @@ function player:initPlayer(x, y)
 	settings.rot, 	settings.rotSpd, 	settings.rotDec, 	settings.rotDir, 	settings.deg = 
 	0, 				2, 					5, 					0, 					0
 
+	settings.guns = 1
+	settings.engines = 1
+
 	--settings.rot 				= current player rotation
 	--settings.rotSpd 			= speed at which the player rotates
 	--settings.rotDec 			= the rotation decay					**unused**
@@ -51,7 +60,7 @@ function player:initPlayer(x, y)
 	--settings.deg 				= container for degrees from rads
 	
 	settings.ox,	settings.oy,	settings.sx,	settings.sy,	settings.vx,	settings.vy = 
-	15.5,			15.5,			1,				1,				0,				0
+	320,			320,			0.125,				0.125,				0,				0
 
 	--settings.ox, settings.oy 	= rotation offset of player
 	--settings.sx, settings.sy	= scale of player
@@ -75,7 +84,12 @@ function player:initPlayer(x, y)
 end
 
 function player:initPlayerGraphics()
-	self:setSprite("player.png")
+	for i =1 , 9, 1 do
+		settings.sprites[i] = love.graphics.newImage(ents.imgPath .. playerImgs[i] .. ".png")
+	end
+
+	settings.sprite = settings.sprites[1]
+
 end
 
 function player:loadDebug()
@@ -93,19 +107,31 @@ end
 
 function player:initMountPoints(x, y)
 	-- initialize mountpoints for this entity relative to this entity
+--	mountPoints = {
+--		{id = -1,	x = 100, 	y = 1000}
+--	}
 	mountPoints = {
-		{id = -1,	x = self.w/2, 	y = 0}
+
 	}
 	
-	--print("boxMount_initMountPoints: " .. mountPoints[1].id)
 end
 
 function player:update(dt)
 	-- update the player entity
 	self:updatePlayer(dt)
+
+	if settings.engines == 1 then
+		self:setSprite(settings.guns)
+	elseif settings.engines == 2 then
+		self:setSprite(settings.guns+3)
+	else
+		self:setSprite(settings.guns+6)
+	end
+
 	
 	-- update mountpoints
-	self:updateMounts(dt)
+	--- limited use
+	self:updateMounts(dt, self.x, self.y, settings.rot, settings.sx, settings.sy)
 
 	-- update debug info
 	--if debug.state then
@@ -173,10 +199,6 @@ function player:draw()
 		love.graphics.circle("fill", v["x"], v["y"], 3)
 	end
 	
-	-- temporary
---	love.graphics.setColor(0,255,0,255)
---	love.graphics.rectangle("fill",self.x,self.y,2,2)
-	
 	-- draw debug info
 	--self:drawDebug(debug.state)	
 end
@@ -224,6 +246,16 @@ function player:keypressed(key, unicode)
 		print("Scale up" .. " " .. tostring(settings.sx))
 		settings.sx = settings.sx + 0.10
 		settings.sy = settings.sy + 0.10
+	end
+	if key == "3" then
+		settings.guns = settings.guns + 1
+		if settings.guns > 3 then settings.guns = 1 end
+	end
+
+	if key == "4" then
+		settings.engines = settings.engines + 1
+		if settings.engines > 3 then settings.engines = 1 end
+
 	end
 end
 
