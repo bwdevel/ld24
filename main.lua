@@ -45,12 +45,18 @@ end
 --      == == ==    ==    ==    ==          == == ==       ==
 
 function love.keypressed(key, unicode)
+	-- Notify entity of keypressed event
+	ents:keypressed(key, unicode)
 end
 
 function love.keyreleased(key, unicode)
+	-- Notify entity of keyreleased event
+	ents:keyreleased(key, unicode)
 end
 
 function love.mousepressed(x, y, button)
+	-- Notify entity of mousepressed event
+	ents:mousepressed(x, y, button)
 end
 
 function love.mousereleased(x, y, button)

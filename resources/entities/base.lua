@@ -1,5 +1,7 @@
 -- A very basic entity.
 local base = {}
+debug = {}
+debug.state = false
 
 base.x = 0
 base.y = 0
