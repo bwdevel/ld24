@@ -10,12 +10,6 @@ function love.load()
 	require("resources/entityFactory")
 	ents.Startup()
 	
-<<<<<<< HEAD
-	entPlayer = ents.Create("player", 100, 100)
-	--local entPlayer = ents.Create("player", 100, 100)
-	--entPlayer:addMount("mount", 1)
-=======
->>>>>>> Added the entityFactory
 end
 
 
