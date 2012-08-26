@@ -5,13 +5,17 @@
 --      == == ==    == == ==    ==    ==    == ==    
 
 function love.load()
-	-- Entity module
+	-- load basic modules
 	require("resources/entities")
+	require("resources/entityFactory")
 	ents.Startup()
 	
+<<<<<<< HEAD
 	entPlayer = ents.Create("player", 100, 100)
 	--local entPlayer = ents.Create("player", 100, 100)
 	--entPlayer:addMount("mount", 1)
+=======
+>>>>>>> Added the entityFactory
 end
 
 
@@ -22,6 +26,9 @@ end
 --      == == ==    ==          == ==       ==    ==       ==       == == ==
 
 function love.update(dt)
+	-- Update factory
+	entFactory.update(dt)
+	
 	-- Update entities
 	ents:update(dt)
 end

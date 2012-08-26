@@ -30,6 +30,14 @@ function ents.Register( name )
 	end
 end
 
+-- Search registered entities for a match
+function ents.isRegisteredEntity(entityName)
+    if register[entityName] then
+    	return true
+    end    
+    return false
+end
+
 -- Entity inheritence
 function ents.Inherit( name )
 	if not name then
@@ -139,8 +147,6 @@ function ents:mousepressed(x, y, button)
 		end
 	end
 end
-
--- Get
 
 -- rounds numbers to a precision of 0.00
 function ents:round(val,prec)
