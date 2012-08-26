@@ -25,6 +25,9 @@ end
 
 function player:load(x, y)
 	self:initPlayer(x, y)
+	
+	self:setMaxMountPoints(1)
+	self:initMountPoints(x, y)
 end
 
 function player:initPlayer(x, y)
@@ -86,6 +89,15 @@ function player:loadDebug()
 	debug.a = "Player Rotation: "
 	debug.b = "Player vx/vy:    "
 	debug.c = "FPS:             "
+end
+
+function player:initMountPoints(x, y)
+	-- initialize mountpoints for this entity relative to this entity
+	mountPoints = {
+		{id = -1,	x = self.w/2, 	y = 0}
+	}
+	
+	--print("boxMount_initMountPoints: " .. mountPoints[1].id)
 end
 
 function player:update(dt)
@@ -160,6 +172,10 @@ function player:draw()
 	for i, v in ipairs(bullets) do
 		love.graphics.circle("fill", v["x"], v["y"], 3)
 	end
+	
+	-- temporary
+	love.graphics.setColor(0,255,0,255)
+	love.graphics.rectangle("fill",self.x,self.y,2,2)
 	
 	-- draw debug info
 	--self:drawDebug(debug.state)	

@@ -8,6 +8,9 @@ function love.load()
 	-- Entity module
 	require("resources/entities")
 	ents.Startup()
+	
+	local entPlayer = ents.Create("player", 100, 100)
+	entPlayer:addMount("mount", 1)
 end
 
 
