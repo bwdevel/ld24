@@ -262,11 +262,12 @@ function phaseTransition()
 		if bgCurrent > #imgBackground then bgCurrent = 1 end
 		bgFade = true
 		gamePhase = gamePhase + 1
-		if gamePhase > 3 then gamePhase = 1 end
+		--if gamePhase > 3 then gamePhase = 1 end
+
 
 -- stuff for when marty leaves
---	elseif gamePhase > 3 then
---		gamePhase = 1
+	elseif gamePhase > 4 then
+		gamePhase = 1
 	end
 
 end

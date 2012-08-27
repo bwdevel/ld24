@@ -163,7 +163,9 @@ function enemy:initEnemyGraphics()
 		settings.sprites[i] = love.graphics.newImage(ents.imgPath .. enemyImages[i])
 	end
 	if not gamePhase then gamePhase = 1 end
-	settings.sprite = settings.sprites[gamePhase]
+	if gamePhase >=1 and gamePhase <= 3 then 
+		settings.sprite = settings.sprites[gamePhase]
+	end
 end
 
 function enemy:loadDebug()
@@ -461,14 +463,17 @@ end
 function enemy:transition()
 
 	if not gamePhase then gamePhase = 1 end
-	settings.sprite = settings.sprites[gamePhase]
 
-	local scale = 64/enemySize[gamePhase]
-	settings.ox = enemySize[gamePhase]/2
-	settings.oy = enemySize[gamePhase]/2
-	settings.sx = scale * settings.scaleMod
-	settings.sy = scale * settings.scaleMod
+	if gamePhase >= 1 and gamePhase <=3 then
 
+		settings.sprite = settings.sprites[gamePhase]
+
+		local scale = 64/enemySize[gamePhase]
+		settings.ox = enemySize[gamePhase]/2
+		settings.oy = enemySize[gamePhase]/2
+		settings.sx = scale * settings.scaleMod
+		settings.sy = scale * settings.scaleMod
+	end
 
 end
 

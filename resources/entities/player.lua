@@ -1,9 +1,11 @@
 local player = ents.Inherit("baseMount")
 local settings = {}
-local playerImgs = { "player_03a", "player_03b", "player_03c", "player_03d", "player_03e", "player_03f", "player_03g","player_03h", "player_03i"}
+local playerImgs = { "player_01.png", "player_02.png", "player_03.png" }
+
+local playerSize = { 64, 128, 512}
 
 settings.sprites= {}
---playerImgs[1] = "player_03a"
+
 	
 --}
 
@@ -67,6 +69,7 @@ end
 function player:load(x, y)
 	self:initPlayer(x, y)
 	
+--- don't need these anymore; but don't break anything, leave for now	
 	self:setMaxMountPoints(0)
 	self:initMountPoints(x, y)
 end
@@ -93,8 +96,8 @@ function player:initPlayer(x, y)
 	settings.rot, 	settings.rotSpd, 	settings.rotDec, 	settings.rotDir, 	settings.deg = 
 	0, 				2, 					5, 					0, 					0
 
-	settings.guns = 1
-	settings.engines = 1
+	--settings.guns = 1
+	--settings.engines = 1
 
 	--settings.rot 				= current player rotation
 	--settings.rotSpd 			= speed at which the player rotates
@@ -103,7 +106,7 @@ function player:initPlayer(x, y)
 	--settings.deg 				= container for degrees from rads
 	
 	settings.ox,	settings.oy,	settings.sx,	settings.sy,	settings.vx,	settings.vy = 
-	255.5,			255.5,			0.125,				0.125,				0,				0
+	32,			32,			1,				1,				0,				0
 
 	--settings.ox, settings.oy 	= rotation offset of player
 	--settings.sx, settings.sy	= scale of player
@@ -127,14 +130,21 @@ function player:initPlayer(x, y)
 	self:setColDist(self:calcColDist(self.w, settings.sx))
 	
 	--self.loadDebug()	-- load debug information
+
+	settings.scaleMod = 1
+	settings.sx = settings.sy * settings.scaleMod
+	settings.sx = settings.sy * settings.scaleMod
 end
 
 function player:initPlayerGraphics()
-	for i =1 , 9, 1 do
-		settings.sprites[i] = love.graphics.newImage(ents.imgPath .. playerImgs[i] .. ".png")
+	for i =1 , 3, 1 do
+		settings.sprites[i] = love.graphics.newImage(ents.imgPath .. playerImgs[i])
 	end
 
-	settings.sprite = settings.sprites[1]
+	if not gamePhase then gamePhase = 1 end
+	if gamePhase >=1 and gamePhase <=3 then
+		settings.sprite = settings.sprites[gamePhase]
+	end
 
 end
 
@@ -174,13 +184,13 @@ function player:update(dt)
 		-- update the player entity
 		self:updatePlayer(dt)
 	
-		if settings.engines == 1 then
-			self:setSprite(settings.guns)
-		elseif settings.engines == 2 then
-			self:setSprite(settings.guns+3)
-		else
-			self:setSprite(settings.guns+6)
-		end
+--		if settings.engines == 1 then
+--			self:setSprite(settings.guns)
+--		elseif settings.engines == 2 then
+--			self:setSprite(settings.guns+3)
+--		else
+--			self:setSprite(settings.guns+6)
+--		end
 	
 		
 		-- update mountpoints
@@ -204,6 +214,8 @@ end
 function player:updatePlayer(dt)
 	-- update player entity
 	self:rotation(dt)
+
+	player:transition()
 
 	if settings.t == true then
 		settings.vx = settings.vx + math.cos((settings.rot))*settings.tRate 
@@ -442,16 +454,16 @@ function player:keypressed(key, unicode)
 		settings.sx = settings.sx + 0.10
 		settings.sy = settings.sy + 0.10
 	end
-	if key == "3" then
-		settings.guns = settings.guns + 1
-		if settings.guns > 3 then settings.guns = 1 end
-	end
+--	if key == "3" then
+--		settings.guns = settings.guns + 1
+--		if settings.guns > 3 then settings.guns = 1 end
+--	end
 
-	if key == "4" then
-		settings.engines = settings.engines + 1
-		if settings.engines > 3 then settings.engines = 1 end
+--	if key == "4" then
+--		settings.engines = settings.engines + 1
+--		if settings.engines > 3 then settings.engines = 1 end
 
-	end
+--	end
 end
 
 function player:keyreleased(key, unicode)
@@ -469,5 +481,24 @@ end
 function player:mousepressed(x, y, button)
 	if button == "l" then self:shoot() end
 end
+
+function player:transition()
+	if not gamePhase then gamePhase = 1 end
+
+	if gamePhase >= 1 and gamePhase <= 3 then
+		settings.sprite = settings.sprites[gamePhase]
+
+		local scale = 64/playerSize[gamePhase]
+		settings.ox = playerSize[gamePhase]/2
+		settings.oy = playerSize[gamePhase]/2
+		settings.sx = scale * settings.scaleMod
+		settings.sy = scale * settings.scaleMod
+	end
+end
+
+
+
+
+
 
 return player;
