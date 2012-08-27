@@ -13,9 +13,9 @@ function love.load()
 	-- disabled until marty fixes repo
 	ent=ents.Create("player", 200,200)
 
-	local ent=ents.Create("enemy", 600,400)
-	local ent=ents.Create("enemy", 600,200)
-	local ent=ents.Create("enemy", 200,400)
+	--local ent=ents.Create("enemy", 600,400)
+	--local ent=ents.Create("enemy", 600,200)
+	--local ent=ents.Create("enemy", 200,400)
 
 	-- at end of file for prototyping. 
 	--Leave file, but try to move contents to a permanent home once prototyped
@@ -137,7 +137,7 @@ function tempInit()
 	xpBar.xp = 1
 	xpBar.dir = 1
 
-
+	newPhase = true
 
 	music[currentMusic]:setVolume(0.75)
 	love.audio.play(music[currentMusic])
@@ -168,6 +168,8 @@ function tempUpdate(dt)
 		xpBar.dir = -(xpBar.dir) 
 	end
 
+	-- start entity factory
+	startEntityFactory()	
 end
 
 function tempDraw()
@@ -301,12 +303,20 @@ function phaseTransition()
 		bgFade = true
 		gamePhase = gamePhase + 1
 		if gamePhase > 3 then gamePhase = 1 end
-
-
+		newPhase = true
 -- stuff for when marty leaves
 	elseif gamePhase > 3 then
 		gamePhase = 1
 	end
-
 end
 
+function startEntityFactory()
+	-- Start entity factory to create entities
+	local spawnArea = {x=0,y=0,w=love.graphics.getWidth(),h=love.graphics.getHeight()}
+	local spawnRate = 200/gamePhase
+	if newPhase then
+		--print("phaseTransition - " .. gamePhase)
+		entFactory.addRecipe("enemy", -1, spawnRate, spawnArea)
+		newPhase = false
+	end
+end
