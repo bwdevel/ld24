@@ -100,7 +100,7 @@ function tempInit()
 	imgBackground = { }
 
 	imgBackground[1] = love.graphics.newImage("resources/images/background_a.png")
-	imgBackground[2] = love.graphics.newImage("resources/images/background_b.png")
+	imgBackground[2] = love.graphics.newImage("resources/images/background_ba.png")
 	imgBackground[3] = love.graphics.newImage("resources/images/background_c.png")
 
 	bgCurrent = 1
