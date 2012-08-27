@@ -99,7 +99,7 @@ function enemy:initEnemy(x, y)
 	
 	-- Set fire rate of the enemy
 	self.fireStatus = false
-	self.fireRate = 100
+	self.fireRate = 10
 	self.fireCountDown = self.fireRate
 	self.fireRange = 150
 	
@@ -383,7 +383,7 @@ function enemy:actionPullTrigger()
 		player.x = ents.objects[self.target].x
 		player.y = ents.objects[self.target].y
 		
-		if ents:getDistance(player.x, player.y, self.x, self.y) > self.fireRange then
+		if ents:getDistance(player.x, player.y, self.x, self.y) <= self.fireRange then
 			self.fireStatus = true
 		else
 			self.fireStatus = false
