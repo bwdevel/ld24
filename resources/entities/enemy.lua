@@ -4,8 +4,6 @@ local enemyImages = { "enemy_01.png", "enemy_02.png", "enemy_03.png"}
 
 local enemySize = { 64, 128, 512 }
 
-
-
 settings.sprites = {}
 
 -- Enemy bullets
@@ -13,8 +11,21 @@ local bullets = {}
 local bulletSpeed = 250
 local bulletDamage = 5
 
--- Experience gain
-local experienceGain = 5
+-- Enemy fire
+local fireStatus = false
+local fireRate = 5
+local fireCountDown = 5
+local fireRange = 150
+
+-- Enemy target
+local target = 0
+local targetRadius = 250
+local range = 150
+
+-- Experience
+local experienceGain = 50
+local experience = 0
+local maxExperience = 100
 
 function enemy:setSprite(sprite)
 	if sprite then
@@ -30,6 +41,35 @@ function enemy:getBullets()
 	return bullets;
 end
 
+function enemy:getFireRate()
+	return fireRate;
+end
+
+function enemy:getFireCountDown()
+	return fireCountDown;
+end
+
+function enemy:getTarget()
+	return target;
+end
+function enemy:setTarget(entityId)
+	if entityId then target = entityid end
+end
+
+function enemy:getTargetRadius()
+	return targetRadius;
+end
+function enemy:setTargetRadius(value)
+	targetRadius = value
+end
+
+function enemy:getFireCountDown()
+	return fireCountDown;
+end
+function enemy:setFireCountDown(value)
+	fireCountDown = value
+end
+
 function enemy:getExperienceGain()
 	return experienceGain;
 end
@@ -43,7 +83,7 @@ end
 function enemy:load(x, y)
 	self:initEnemy(x, y)
 	-- Enemy specific iniitialization settings
-	settings.range = 250
+	settings.range = 100 --MW-- deprecated moved to self.range
 end
 
 function enemy:initEnemy(x, y)
@@ -57,8 +97,21 @@ function enemy:initEnemy(x, y)
 	self.maxHealth = 100
 	self.health = self.maxHealth
 	
+	-- Set fire rate of the enemy
+	self.fireStatus = false
+	self.fireRate = 100
+	self.fireCountDown = self.fireRate
+	self.fireRange = 150
+	
 	-- set Experience gain for killing this enemy
 	self.experienceGain = 5
+	self.experience = 0
+	self.maxExperience = 100
+	
+	-- set target id
+	self.target = 0
+	self.targetRadius = 250
+	self.range = 150
 	
 	width = ents.window.width	-- get the window width
 	height = ents.window.height -- get the window height
@@ -155,6 +208,18 @@ function enemy:update(dt)
 	if (self.x > width and settings.vx > 0) 	or (self.x < 0 and settings.vx < 0) then settings.vx = -(settings.vx)*settings.reactionLoss end
 	if (self.y > height and settings.vy > 0)	or (self.y < 0 and settings.vy < 0) then settings.vy = -(settings.vy)*settings.reactionLoss end
 
+	-- Start fireCountDown 
+	if self.target then 
+		if self.fireCountDown == 0 then
+			-- shoot at player
+			--self:shoot()
+			-- reset countdown
+			self.fireCountDown = self.fireRate
+		else
+			self.fireCountDown = self.fireCountDown - 1
+		end
+	end
+	
 	-- update bullets
 	local delBullets = {}
 	for i, v in pairs(bullets) do
@@ -185,6 +250,12 @@ function enemy:update(dt)
 	-- Check for collisions
 	self:checkCollision()
 	
+	-- Aquire target
+	self:aquireTarget()
+	
+	-- Actions against target if target aqcuired
+	self:processActions()
+	
 	-- update debug info
 	--if debug.state then
 	--	debug.timer = debug.timer + dt
@@ -193,20 +264,21 @@ function enemy:update(dt)
 end
 
 function enemy:updateEnemy(dt)
-	local player = {}
-	player.Id = ents.playerEntityId
-	player.x = ents.objects[player.Id].x
-	player.y = ents.objects[player.Id].y
-	
-	--print("enemy_updateEnemy: player.x[" .. player.x .. "] player.y[" .. player.y .. "]")
-	
-	settings.rot = math.atan2((player.y - self.y), (player.x - self.x)) 
-
-	if ents:getDistance(player.x, player.y, self.x, self.y) > settings.range then
-		settings.t = true
-	else 
-		settings.t = false
-	end
+	--MW--Deprecated by enemy:actionMove
+	--local player = {}
+	--player.Id = ents.playerEntityId
+	--player.x = ents.objects[player.Id].x
+	--player.y = ents.objects[player.Id].y
+	--
+	----print("enemy_updateEnemy: player.x[" .. player.x .. "] player.y[" .. player.y .. "]")
+	--
+	--settings.rot = math.atan2((player.y - self.y), (player.x - self.x)) 
+	--
+	--if ents:getDistance(player.x, player.y, self.x, self.y) > settings.range then
+	--	settings.t = true
+	--else 
+	--	settings.t = false
+	--end
 
 	--print("enemy_updateEnemy: settings.tRate[" .. settings.tRate .. "]")
 	if settings.t == true then
@@ -240,6 +312,103 @@ function enemy:rotation(dt)
 	settings.rot = settings.rot + (settings.rotSpd*settings.rotDir*dt)
 end
 
+function enemy:aquireTarget()
+-- For now only target players if in range
+	-- find player entity
+	local player = {}
+	player.id = ents.playerEntityId
+	player.x = ents.objects[player.id].x
+	player.y = ents.objects[player.id].y
+	-- calculate distance and check range
+	local entDist = ents:getDistance(player.x, player.y, self.x, self.y)
+	if entDist <= self.targetRadius then
+		self.target = player.id
+	else
+		self.target = 0
+	end
+
+--MW-- For future use
+--	-- aquire a target to get into range and shoot at
+--	for i, entity in pairs(ents.objects) do
+--		if entity and entity.id ~= self.id  and entity.type == "player" then
+--			-- Get position of entity
+--			local x,y = entity.getPos()
+--				
+--			-- Check collisions between entities
+--			-- Calculate distance between entities
+--			local entDist = ents:getDistance(x, y, self.x, self.y)
+--			-- Check if there is a possible target in range
+--			if entDist <= self.targetRadius then
+--				self.target = entity.id
+--				--print("target aquired: [" .. self.id .. "] [" .. entity.id .. "]")
+--			else
+--				self.target = 0
+--				--print("target lost: [" .. self.id .. "]")
+--			end
+--		end
+--	end
+--MW--
+end
+
+function enemy:processActions()
+	self:actionMove()
+	self:actionPullTrigger()
+	self:actionShoot()
+end
+
+function enemy:actionMove()
+	if self.target > 0 then
+		local player = {}
+		player.x = ents.objects[self.target].x
+		player.y = ents.objects[self.target].y
+		
+		-- calculate heading towards target
+		settings.rot = math.atan2((player.y - self.y), (player.x - self.x)) 
+		-- start thrusters
+		if ents:getDistance(player.x, player.y, self.x, self.y) > self.range then
+			settings.t = true
+		else
+			settings.t = false
+		end
+	else 
+		settings.t = false
+	end
+end
+
+function enemy:actionPullTrigger()
+	if self.target > 0 then
+		local player = {}
+		player.x = ents.objects[self.target].x
+		player.y = ents.objects[self.target].y
+		
+		if ents:getDistance(player.x, player.y, self.x, self.y) > self.fireRange then
+			self.fireStatus = true
+		else
+			self.fireStatus = false
+		end
+	else
+		self.fireStatus = false			
+	end
+end
+
+function enemy:actionShoot()
+	if self.fireStatus then
+		-- Start shoot countdown
+		if self.fireCountDown > 0 then
+			-- Count down till shoot
+			self.fireCountDown = self.fireCountDown - 1
+		else
+			-- Start shoot'in!
+			self:shoot()
+			-- reset countdown
+			self.fireCountDown = self.fireRate
+		end
+	else
+		-- reset countdown
+		self.fireCountDown = self.fireRate
+	end
+end
+
 function enemy:shoot()
 	local bulletDx = bulletSpeed * math.cos(settings.rot)
 	local bulletDy = bulletSpeed * math.sin(settings.rot)
@@ -256,14 +425,15 @@ end
 function enemy:draw()
 	love.graphics.setColor(255,255,255,255)
 	if settings.t == true then 	love.graphics.setColor(255,0,0,255) end
-	-- draw player entity
-	--print("enemy_draw:" .. self.x .. " " .. self.y .. " " .. settings.rot .. " " .. settings.sx .. " " .. settings.sy .. " " .. settings.ox .. " " .. settings.oy)
-	love.graphics.draw(settings.sprite,	self.x,	self.y,	settings.rot,	settings.sx,	settings.sy,	settings.ox,	settings.oy)	
 
 	-- draw bullets
 	for i, v in ipairs(bullets) do
 		love.graphics.circle("fill", v["x"], v["y"], 3)
 	end
+	
+	-- draw player entity
+	--print("enemy_draw:" .. self.x .. " " .. self.y .. " " .. settings.rot .. " " .. settings.sx .. " " .. settings.sy .. " " .. settings.ox .. " " .. settings.oy)
+	love.graphics.draw(settings.sprite,	self.x,	self.y,	settings.rot,	settings.sx,	settings.sy,	settings.ox,	settings.oy)	
 	
 	-- temporary HP count
 	love.graphics.setColor(255,0,0,255)
@@ -286,8 +456,6 @@ function enemy:keyreleased(key, unicode)
 end
 
 function enemy:mousepressed(x, y, button)
-	-- temporarily added to shoot with enemy
-	if button == "r" then self:shoot() end
 end
 
 function enemy:transition()

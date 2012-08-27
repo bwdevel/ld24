@@ -13,7 +13,9 @@ local bulletSpeed = 250
 local bulletDamage = 10
 
 -- Experience
+local level = 0
 local experience = 0
+local maxExperience = 100
 
 -- Killed
 local playerKilled = false
@@ -44,12 +46,16 @@ function player:getBullets()
 	return bullets;
 end
 
+function player:getLevel()
+	return level;
+end
+
 function player:getExperience()
 	return experience;
 end
 
 function player:setExperience(value)
-	experience = experience + value
+	modifyExperience(value)
 end
 
 --      ==          == == ==       ==       == ==
@@ -76,7 +82,9 @@ function player:initPlayer(x, y)
 	self.maxHealth = 200
 	self.health = self.maxHealth
 	self.playerKilled = false
+	self.level = 0
 	self.experience = 0
+	self.maxExperience = 100
 	
 	width = ents.window.width	-- get the window width
 	height = ents.window.height -- get the window height
@@ -333,8 +341,21 @@ function player:modifyExperience(value, decrease)
 	else
 		self.experience = self.experience + value
 	end
-end
 	
+	-- Check experience status
+	if self.experience <= 0 then self.experience = 0 end
+	if self.experience >= self.maxExperience then
+		-- User has completed this level trigger levelUp
+		self:levelUp()
+	end
+end
+
+function player:levelUp()
+	-- this function triggers when the player reaches max XP for level.
+	print("player level up!")
+	self.experience = 0
+	self.level = self.level + 1
+end
 
 --     == ==       == ==          ==       ==    ==
 --     ==    ==    ==    ==    ==    ==    ==    ==
@@ -347,20 +368,24 @@ function player:draw()
 	if not self.playerKilled then	
 		love.graphics.setColor(255,255,255,255)
 
-		-- draw player entity
-		--print("player_draw:" .. self.x .. " " .. self.y .. " " .. settings.rot .. " " .. settings.sx .. " " .. settings.sy .. " " .. settings.ox .. " " .. settings.oy)
-		love.graphics.draw(settings.sprite,	self.x,	self.y,	settings.rot,	settings.sx,	settings.sy,	settings.ox,	settings.oy)	
-
 		-- draw bullets
 		for i, v in ipairs(bullets) do
 			love.graphics.circle("fill", v["x"], v["y"], 3)
 		end
-	
-		-- temporary HP count
+		
+		-- draw player entity
+		--print("player_draw:" .. self.x .. " " .. self.y .. " " .. settings.rot .. " " .. settings.sx .. " " .. settings.sy .. " " .. settings.ox .. " " .. settings.oy)
+		love.graphics.draw(settings.sprite,	self.x,	self.y,	settings.rot,	settings.sx,	settings.sy,	settings.ox,	settings.oy)	
+
+		-- temporary HP count (bottom right)
 		love.graphics.setColor(255,0,0,255)
 		love.graphics.print(tostring(self.health), self.x + 15, self.y + 15)
+		-- Temporary EXP count (bottom left)
 		love.graphics.setColor(0, 255, 255, 255)
 		love.graphics.print(tostring(self.experience), self.x - 40, self.y + 15)
+		-- Temporary LVL count (bottom center)
+		love.graphics.setColor(255,255,0,255)
+		love.graphics.print(tostring(self.level), self.x - 25, self.y + 25)
 	
 		-- draw debug info
 		--self:drawDebug(debug.state)
