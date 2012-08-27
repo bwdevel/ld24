@@ -12,8 +12,10 @@ local bulletSpeed = 250
 local bulletDamage = 5
 
 -- Enemy fire
-local fireRate = 25
-local fireCountDown = 25
+local fireStatus = false
+local fireRate = 5
+local fireCountDown = 5
+local fireRange = 150
 
 -- Enemy target
 local target = 0
@@ -96,8 +98,10 @@ function enemy:initEnemy(x, y)
 	self.health = self.maxHealth
 	
 	-- Set fire rate of the enemy
+	self.fireStatus = false
 	self.fireRate = 100
 	self.fireCountDown = self.fireRate
+	self.fireRange = 150
 	
 	-- set Experience gain for killing this enemy
 	self.experienceGain = 5
@@ -249,8 +253,8 @@ function enemy:update(dt)
 	-- Aquire target
 	self:aquireTarget()
 	
-	-- Action against target if target aqcuired
-	self:actionMove()
+	-- Actions against target if target aqcuired
+	self:processActions()
 	
 	-- update debug info
 	--if debug.state then
@@ -260,6 +264,7 @@ function enemy:update(dt)
 end
 
 function enemy:updateEnemy(dt)
+	--MW--Deprecated by enemy:actionMove
 	--local player = {}
 	--player.Id = ents.playerEntityId
 	--player.x = ents.objects[player.Id].x
@@ -307,13 +312,6 @@ function enemy:rotation(dt)
 	settings.rot = settings.rot + (settings.rotSpd*settings.rotDir*dt)
 end
 
-function enemy:shoot()
-	local bulletDx = bulletSpeed * math.cos(settings.rot)
-	local bulletDy = bulletSpeed * math.sin(settings.rot)
-
-	table.insert(bullets, {x = self.x, y = self.y, dx = bulletDx, dy = bulletDy, damage = bulletDamage})
-end
-
 function enemy:aquireTarget()
 -- For now only target players if in range
 	-- find player entity
@@ -329,7 +327,7 @@ function enemy:aquireTarget()
 		self.target = 0
 	end
 
--- For future use --
+--MW-- For future use
 --	-- aquire a target to get into range and shoot at
 --	for i, entity in pairs(ents.objects) do
 --		if entity and entity.id ~= self.id  and entity.type == "player" then
@@ -349,6 +347,13 @@ function enemy:aquireTarget()
 --			end
 --		end
 --	end
+--MW--
+end
+
+function enemy:processActions()
+	self:actionMove()
+	self:actionPullTrigger()
+	self:actionShoot()
 end
 
 function enemy:actionMove()
@@ -367,8 +372,48 @@ function enemy:actionMove()
 		end
 	else 
 		settings.t = false
-		--end
 	end
+end
+
+function enemy:actionPullTrigger()
+	if self.target > 0 then
+		local player = {}
+		player.x = ents.objects[self.target].x
+		player.y = ents.objects[self.target].y
+		
+		if ents:getDistance(player.x, player.y, self.x, self.y) > self.fireRange then
+			self.fireStatus = true
+		else
+			self.fireStatus = false
+		end
+	else
+		self.fireStatus = false			
+	end
+end
+
+function enemy:actionShoot()
+	if self.fireStatus then
+		-- Start shoot countdown
+		if self.fireCountDown > 0 then
+			-- Count down till shoot
+			self.fireCountDown = self.fireCountDown - 1
+		else
+			-- Start shoot'in!
+			self:shoot()
+			-- reset countdown
+			self.fireCountDown = self.fireRate
+		end
+	else
+		-- reset countdown
+		self.fireCountDown = self.fireRate
+	end
+end
+
+function enemy:shoot()
+	local bulletDx = bulletSpeed * math.cos(settings.rot)
+	local bulletDy = bulletSpeed * math.sin(settings.rot)
+
+	table.insert(bullets, {x = self.x, y = self.y, dx = bulletDx, dy = bulletDy, damage = bulletDamage})
 end
 
 --     == ==       == ==          ==       ==    ==
