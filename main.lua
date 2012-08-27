@@ -144,10 +144,10 @@ function tempUpdate(dt)
 		end
 	end
 
-	xpBar.xp = xpBar.xp + 40 * dt
+--	xpBar.xp = xpBar.xp + 40 * dt
 
 	-- reverse bar (mockup)
-	if xpBar.xp > 100 then
+	if xpBar.xp >= 100 then
 		xpBar.xp = 0
 --		xpBar.dir = -(xpBar.dir)
 --		gamePhase = gamePhase + 1
@@ -166,6 +166,14 @@ function tempDraw()
 	love.graphics.setColor(255,255,255,255)
 
 	--- background code
+	if gamePhase == 0 then
+		--print("gamePhase = 0")
+		--bgOld = 1
+		--love.graphics.rectangle("fill", 0, 0, 800, 600)
+		--love.graphics.draw(imgBackground[1],0,0)
+	end
+
+
 	if gamePhase >= 1 and gamePhase <= 3 then
 		love.graphics.draw(imgBackground[bgCurrent],0,0)
 	
@@ -176,8 +184,13 @@ function tempDraw()
 
 	-- background fading code
 	if bgFade == true then
-		love.graphics.setColor(255,255,255,bgFadeLevel)
-		love.graphics.draw(imgBackground[bgOld],0,0)
+		if gamePhase >= 1 and gamePhase <= 4 then
+			love.graphics.setColor(255,255,255,bgFadeLevel)
+			love.graphics.draw(imgBackground[bgOld],0,0)
+		else
+			love.graphics.setColor(0,0,0,bgFadeLevel)
+			love.graphics.rectangle("fill",0,0,800,600)
+		end
 	end
 
 	-- xp bar code
