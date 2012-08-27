@@ -14,6 +14,10 @@ function enemy:setSprite(sprite)
 	end
 end
 
+function enemy:getBullets()
+	return bullets;
+end
+
 function enemy:load(x, y)
 	self:initEnemy(x, y)
 	-- Enemy specific iniitialization settings
@@ -177,6 +181,13 @@ function enemy:rotation(dt)
 	settings.rot = settings.rot + (settings.rotSpd*settings.rotDir*dt)
 end
 
+function enemy:shoot()
+	local bulletDx = bulletSpeed * math.cos(settings.rot)
+	local bulletDy = bulletSpeed * math.sin(settings.rot)
+
+	table.insert(bullets, {x = self.x, y = self.y, dx = bulletDx, dy = bulletDy})
+end 
+
 function enemy:draw()
 	love.graphics.setColor(255,255,255,255)
 	if settings.t == true then 	love.graphics.setColor(255,0,0,255) end
@@ -200,6 +211,8 @@ function enemy:keyreleased(key, unicode)
 end
 
 function enemy:mousepressed(x, y, button)
+	-- temporarily added to shoot with enemy
+	if button == "r" then self:shoot() end
 end
 
 return enemy;

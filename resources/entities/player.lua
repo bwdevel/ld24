@@ -33,6 +33,10 @@ function player:setSprite(sprite)
 	end
 end
 
+function player:getBullets()
+	return bullets;
+end
+
 function player:load(x, y)
 	self:initPlayer(x, y)
 	
@@ -64,7 +68,7 @@ function player:initPlayer(x, y)
 	--settings.deg 				= container for degrees from rads
 	
 	settings.ox,	settings.oy,	settings.sx,	settings.sy,	settings.vx,	settings.vy = 
-	320,			320,			0.125,				0.125,				0,				0
+	255.5,			255.5,			0.125,				0.125,				0,				0
 
 	--settings.ox, settings.oy 	= rotation offset of player
 	--settings.sx, settings.sy	= scale of player
@@ -200,6 +204,13 @@ function player:rotation(dt)
 	settings.rot = settings.rot + (settings.rotSpd*settings.rotDir*dt)
 end
 
+function player:shoot()
+	local bulletDx = bulletSpeed * math.cos(settings.rot)
+	local bulletDy = bulletSpeed * math.sin(settings.rot)
+
+	table.insert(bullets, {x = self.x, y = self.y, dx = bulletDx, dy = bulletDy})
+end 
+
 function player:checkCollision()
 	for i,entity in pairs(ents.objects) do
 		if entity then
@@ -211,28 +222,25 @@ function player:checkCollision()
 				-- Check collisions between entities
 				-- Calculate distance between entities
 				--print("checkCollision: [" .. x .. "] [" .. y .. "] [" .. self.x .. "] [" .. self.y .. "]")
-				local entdist = ents:getDistance(x, y, self.x, self.y)
+				local entDist = ents:getDistance(x, y, self.x, self.y)
 				-- Calculate combined collision distance
 				local colDist = entity.getColDist() + self.getColDist()
-				if entdist <= colDist then
+				if entDist <= colDist then
 					print("Collision occured between: [" .. self.id .. "] [" .. entity.id .. "]")
-				else
-					print("No collisions detected")
 				end
 				
-				-- Check collisions between bullets
-				for i, bullet in pairs(bullets) do
-					-- Calculate distance between entities
+				-- Check collisions between bullets and entities
+				for i, bullet in pairs(self:getBullets()) do
+					-- Calculate distance between bullets and entities
 					--print("checkCollision: [" .. x .. "] [" .. y .. "] [" .. self.x .. "] [" .. self.y .. "]")
-					local entdist = ents:getDistance(x, y, bullet.x, bullet.y)
+					local entDist = ents:getDistance(x, y, bullet.x, bullet.y)
 					-- Calculate combined collision distance
 					local colDist = entity.getColDist()
-					if entdist <= colDist then
+					if entDist <= colDist then
 						print("Collision occured between: bullet-[" .. self.id .. "] [" .. entity.id .. "]")
-					else
-						print("No collisions detected")
 					end		
 				end
+
 			end			
 		else
 			print("Error: Invalid entity in global entity list!")
@@ -325,12 +333,7 @@ function player:keyreleased(key, unicode)
 end
 
 function player:mousepressed(x, y, button)
-	if button == "l" then
-		local bulletDx = bulletSpeed * math.cos(settings.rot)
-		local bulletDy = bulletSpeed * math.sin(settings.rot)
-
-		table.insert(bullets, {x = self.x, y = self.y, dx = bulletDx, dy = bulletDy})
-	end
+	if button == "l" then self:shoot() end
 end
 
 return player;
