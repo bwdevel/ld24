@@ -61,6 +61,8 @@ function enemy:initEnemy(x, y)
 
 	settings.reactionLoss = 0.80 	-- how much velocity is lost in a collision
 	
+	-- Calculate collision distance
+	self:setColDist(self:calcColDist(self.w, settings.sx))
 	--self.loadDebug()	-- load debug information
 end
 
@@ -114,6 +116,12 @@ function enemy:update(dt)
 	-- update mountpoints
 	self:updateMounts(dt)
 
+	-- Calculate collision distance
+	self:setColDist(self:calcColDist(self.w, settings.sx))
+	
+	-- Check for collisions
+	self:checkCollision()
+	
 	-- update debug info
 	--if debug.state then
 	--	debug.timer = debug.timer + dt
