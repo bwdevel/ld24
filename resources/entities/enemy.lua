@@ -88,7 +88,9 @@ function enemy:initEnemy(x, y)
 	self:setColDist(self:calcColDist(self.w, settings.sx))
 	--self.loadDebug()	-- load debug information
 
-	settings.transitioning = false
+	settings.scaleMod = 1
+	settings.sx = settings.sx * settings.scaleMod
+	settings.sy = settings.sy * settings.scaleMod
 
 end
 
@@ -286,8 +288,8 @@ function enemy:transition()
 	local scale = 64/enemySize[gamePhase]
 	settings.ox = enemySize[gamePhase]/2
 	settings.oy = enemySize[gamePhase]/2
-	settings.sx = scale
-	settings.sy = scale
+	settings.sx = scale * settings.scaleMod
+	settings.sy = scale * settings.scaleMod
 
 
 end
