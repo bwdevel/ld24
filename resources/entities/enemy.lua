@@ -109,9 +109,21 @@ function enemy:update(dt)
 	if (self.y > height and settings.vy > 0)	or (self.y < 0 and settings.vy < 0) then settings.vy = -(settings.vy)*settings.reactionLoss end
 
 	-- update bullets
+	local delBullets = {}
 	for i, v in pairs(bullets) do
+		-- update x, y coordinates
 		v["x"] = v["x"] + (v["dx"] * dt)
 		v["y"] = v["y"] + (v["dy"] * dt)
+		-- check if out of bounds
+		if v.x < 0 or v.x > width or v.y < 0 or v.y > height then
+			table.insert(delBullets, i)
+		end
+	end
+	-- remove any bullets out of bounds
+	if #delBullets > 0 then
+		for i,v in ipairs(delBullets) do
+			table.remove(bullets, v)
+		end
 	end
 	
 	-- update enemy specific entity
