@@ -4,6 +4,7 @@ local settings = {}
 -- Enemy bullets
 local bullets = {}
 local bulletSpeed = 250
+local bulletDamage = 10
 
 function enemy:setSprite(sprite)
 	if sprite then
@@ -18,6 +19,12 @@ function enemy:getBullets()
 	return bullets;
 end
 
+--      ==          == == ==       ==       == ==
+--      ==          ==    ==    ==    ==    ==    ==
+--      ==          ==    ==    == == ==    ==    ==
+--      ==          ==    ==    ==    ==    ==    ==
+--      == == ==    == == ==    ==    ==    == ==    
+
 function enemy:load(x, y)
 	self:initEnemy(x, y)
 	-- Enemy specific iniitialization settings
@@ -30,6 +37,10 @@ function enemy:initEnemy(x, y)
 	-- set start width and height from the image, because of orientation issues the width is the height and viceversa
 	self:setPos(x, y)
 	self:setSize(settings.sprite:getHeight(), settings.sprite:getWidth())
+	
+	-- Set maximum allowed health and initiate full health
+	self.maxHealth = 100
+	self.health = self.maxHealth
 	
 	width = ents.window.width	-- get the window width
 	height = ents.window.height -- get the window height
@@ -86,6 +97,12 @@ function enemy:loadDebug()
 	debug.g = "Enemy vx/vy:     "
 	debug.h = "Distance:        "
 end
+
+--      ==    ==    == ==       == ==          ==       == == ==    == == ==
+--      ==    ==    ==    ==    ==    ==    ==    ==       ==       ==
+--      ==    ==    == ==       ==    ==    == == ==       ==       == ==
+--      ==    ==    ==          ==    ==    ==    ==       ==       ==
+--      == == ==    ==          == ==       ==    ==       ==       == == ==
 
 function enemy:update(dt)
 	-- update player entity
@@ -200,6 +217,12 @@ function enemy:shoot()
 	table.insert(bullets, {x = self.x, y = self.y, dx = bulletDx, dy = bulletDy})
 end 
 
+--     == ==       == ==          ==       ==    ==
+--     ==    ==    ==    ==    ==    ==    ==    ==
+--     ==    ==    == ==       == == ==    ==    ==
+--     ==    ==    ==   ==     ==    ==    == == ==
+--     == ==       ==   ==     ==    ==    ==    ==
+
 function enemy:draw()
 	love.graphics.setColor(255,255,255,255)
 	if settings.t == true then 	love.graphics.setColor(255,0,0,255) end
@@ -212,9 +235,19 @@ function enemy:draw()
 		love.graphics.circle("fill", v["x"], v["y"], 3)
 	end
 	
+	-- temporary HP count
+	love.graphics.setColor(255,0,0,255)
+	love.graphics.print(self.health, self.x + 15, self.y)
+	
 	-- draw debug info
 	--self:drawDebug(debug.state)	
 end
+
+--      == == ==    ==    ==    == ==       ==    ==    == == ==
+--         ==       == == ==    ==    ==    ==    ==       ==
+--         ==       == == ==    == ==       ==    ==       ==
+--         ==       ==    ==    ==          ==    ==       ==
+--      == == ==    ==    ==    ==          == == ==       ==
 
 function enemy:keypressed(key, unicode)
 end

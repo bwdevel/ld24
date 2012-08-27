@@ -10,6 +10,7 @@ settings.sprites= {}
 -- Player bullets
 local bullets = {}
 local bulletSpeed = 250
+local bulletDamage = 10
 
 function player:setSize( w, h)
 	self.w = w
@@ -37,6 +38,12 @@ function player:getBullets()
 	return bullets;
 end
 
+--      ==          == == ==       ==       == ==
+--      ==          ==    ==    ==    ==    ==    ==
+--      ==          ==    ==    == == ==    ==    ==
+--      ==          ==    ==    ==    ==    ==    ==
+--      == == ==    == == ==    ==    ==    == ==    
+
 function player:load(x, y)
 	self:initPlayer(x, y)
 	
@@ -50,6 +57,10 @@ function player:initPlayer(x, y)
 	-- set start width and height from the image, because of orientation issues the width is the height and viceversa
 	self:setPos(x, y)
 	self:setSize(settings.sprite:getHeight(), settings.sprite:getWidth())
+	
+	-- Set maximum allowed health and initiate full health	
+	self.maxHealth = 100
+	self.health = self.maxHealth
 	
 	width = ents.window.width	-- get the window width
 	height = ents.window.height -- get the window height
@@ -127,6 +138,12 @@ function player:initMountPoints(x, y)
 	
 end
 
+--      ==    ==    == ==       == ==          ==       == == ==    == == ==
+--      ==    ==    ==    ==    ==    ==    ==    ==       ==       ==
+--      ==    ==    == ==       ==    ==    == == ==       ==       == ==
+--      ==    ==    ==          ==    ==    ==    ==       ==       ==
+--      == == ==    ==          == ==       ==    ==       ==       == == ==
+
 function player:update(dt)
 	-- update the player entity
 	self:updatePlayer(dt)
@@ -193,7 +210,6 @@ function player:updatePlayer(dt)
 	if #delBullets > 0 then
 		for i,v in ipairs(delBullets) do
 			table.remove(bullets, v)
-			print("removed bullet!")
 		end
 	end
 end
@@ -259,7 +275,26 @@ function player:checkCollision()
 			print("Error: Invalid entity in global entity list!")
 		end
 	end
-end 
+end
+
+function player:modifyHealth(value, damage)
+	-- Increase or decrease health
+	if damage then
+		self.health = self.health - value
+	else
+		self.health = self.health + value
+	end 
+	
+	-- Check health status
+	if self.health > self.MaxHealth then self.health = self.maxHealth end
+	if self.health <= 0 then self.health = 0 end -- entity dead!
+end
+
+--     == ==       == ==          ==       ==    ==
+--     ==    ==    ==    ==    ==    ==    ==    ==
+--     ==    ==    == ==       == == ==    ==    ==
+--     ==    ==    ==   ==     ==    ==    == == ==
+--     == ==       ==   ==     ==    ==    ==    ==
 
 function player:draw()
 	love.graphics.setColor(255,255,255,255)
@@ -272,6 +307,10 @@ function player:draw()
 	for i, v in ipairs(bullets) do
 		love.graphics.circle("fill", v["x"], v["y"], 3)
 	end
+	
+	-- temporary HP count
+	love.graphics.setColor(255,0,0,255)
+	love.graphics.print(self.health, self.x + 15, self.y + 15)
 	
 	-- draw debug info
 	--self:drawDebug(debug.state)	
@@ -293,6 +332,12 @@ function player:drawDebug(bool)
 	love.graphics.print(debug.b, debug.x + (debug.mx*0), debug.y + (debug.my*1))
 	love.graphics.print(debug.c, debug.x + (debug.mx*0), debug.y + (debug.my*2))
 end
+
+--      == == ==    ==    ==    == ==       ==    ==    == == ==
+--         ==       == == ==    ==    ==    ==    ==       ==
+--         ==       == == ==    == ==       ==    ==       ==
+--         ==       ==    ==    ==          ==    ==       ==
+--      == == ==    ==    ==    ==          == == ==       ==
 
 function player:keypressed(key, unicode)
 	--print("player_keypressed: key[" .. key .. "] unicode[" .. unicode .. "] playerAimType[" .. ents.playerAimType .. "]")

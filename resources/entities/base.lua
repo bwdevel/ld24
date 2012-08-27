@@ -6,6 +6,7 @@ debug.state = false
 base.x = 0
 base.y = 0
 base.health = 1
+base.maxHealth = 1
 base.colDist = 0
 
 function base:setPos( x, y )
