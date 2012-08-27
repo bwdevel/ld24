@@ -353,6 +353,9 @@ function player:modifyExperience(value, decrease)
 	else
 		self.experience = self.experience + value
 	end
+
+	-- Update xpBar before experience reset
+	xpBar.xp = self.experience
 	
 	-- Check experience status
 	if self.experience <= 0 then self.experience = 0 end
@@ -364,7 +367,6 @@ end
 
 function player:levelUp()
 	-- this function triggers when the player reaches max XP for level.
-	print("player level up!")
 	self.experience = 0
 	self.level = self.level + 1
 end
