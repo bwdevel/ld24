@@ -380,14 +380,15 @@ end
 function enemy:draw()
 	love.graphics.setColor(255,255,255,255)
 	if settings.t == true then 	love.graphics.setColor(255,0,0,255) end
-	-- draw player entity
-	--print("enemy_draw:" .. self.x .. " " .. self.y .. " " .. settings.rot .. " " .. settings.sx .. " " .. settings.sy .. " " .. settings.ox .. " " .. settings.oy)
-	love.graphics.draw(settings.sprite,	self.x,	self.y,	settings.rot,	settings.sx,	settings.sy,	settings.ox,	settings.oy)	
 
 	-- draw bullets
 	for i, v in ipairs(bullets) do
 		love.graphics.circle("fill", v["x"], v["y"], 3)
 	end
+	
+	-- draw player entity
+	--print("enemy_draw:" .. self.x .. " " .. self.y .. " " .. settings.rot .. " " .. settings.sx .. " " .. settings.sy .. " " .. settings.ox .. " " .. settings.oy)
+	love.graphics.draw(settings.sprite,	self.x,	self.y,	settings.rot,	settings.sx,	settings.sy,	settings.ox,	settings.oy)	
 	
 	-- temporary HP count
 	love.graphics.setColor(255,0,0,255)

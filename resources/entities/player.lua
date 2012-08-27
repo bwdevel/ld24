@@ -368,15 +368,15 @@ function player:draw()
 	if not self.playerKilled then	
 		love.graphics.setColor(255,255,255,255)
 
-		-- draw player entity
-		--print("player_draw:" .. self.x .. " " .. self.y .. " " .. settings.rot .. " " .. settings.sx .. " " .. settings.sy .. " " .. settings.ox .. " " .. settings.oy)
-		love.graphics.draw(settings.sprite,	self.x,	self.y,	settings.rot,	settings.sx,	settings.sy,	settings.ox,	settings.oy)	
-
 		-- draw bullets
 		for i, v in ipairs(bullets) do
 			love.graphics.circle("fill", v["x"], v["y"], 3)
 		end
-	
+		
+		-- draw player entity
+		--print("player_draw:" .. self.x .. " " .. self.y .. " " .. settings.rot .. " " .. settings.sx .. " " .. settings.sy .. " " .. settings.ox .. " " .. settings.oy)
+		love.graphics.draw(settings.sprite,	self.x,	self.y,	settings.rot,	settings.sx,	settings.sy,	settings.ox,	settings.oy)	
+
 		-- temporary HP count (bottom right)
 		love.graphics.setColor(255,0,0,255)
 		love.graphics.print(tostring(self.health), self.x + 15, self.y + 15)
