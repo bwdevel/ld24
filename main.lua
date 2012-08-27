@@ -13,8 +13,8 @@ function love.load()
 	-- disabled until marty fixes repo
 	local ent=ents.Create("player", 200,200)
 
-	local ent=ents.Create("enemy", 600,400)
-	local ent=ents.Create("enemy", 600,200)
+--	local ent=ents.Create("enemy", 600,400)
+--	local ent=ents.Create("enemy", 600,200)
 	local ent=ents.Create("enemy", 200,400)
 
 	-- at end of file for prototyping. 
@@ -98,8 +98,8 @@ end
 ---- everything below this should probably be moved to it's home after prototyping ---
 --------------------------------------------------------------------------------------
 function tempInit()
-	print("init works")
 
+	gamePhase = 1
 
 	imgBackground = { }
 
@@ -144,6 +144,9 @@ function tempKeyPress(key, unicode)
 		bgCurrent = bgCurrent + 1
 		if bgCurrent > #imgBackground then bgCurrent = 1 end
 		bgFade = true
+		gamePhase = gamePhase + 1
+		if gamePhase > 3 then gamePhase = 1 end
+		print(gamePhase)
 	end
 
 end

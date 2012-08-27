@@ -1,5 +1,12 @@
 local enemy = ents.Inherit("player")
 local settings = {}
+local enemyImages = { "enemy_01.png", "enemy_02.png", "enemy_03.png"}
+
+local enemySize = { 64, 128, 512 }
+
+
+
+settings.sprites = {}
 
 -- Enemy bullets
 local bullets = {}
@@ -8,7 +15,8 @@ local bulletDamage = 10
 
 function enemy:setSprite(sprite)
 	if sprite then
-		settings.sprite = love.graphics.newImage(ents.imgPath .. sprite)
+--		settings.sprite = love.graphics.newImage(ents.imgPath .. sprite)
+		settings.sprite = settings.sprites[sprite]
 	else
 		print("Error: Sprite could not be loaded!")
 		return false;
@@ -33,7 +41,7 @@ end
 
 function enemy:initEnemy(x, y)
 	-- initialize graphics
-	self:initPlayerGraphics()
+	self:initEnemyGraphics()
 	-- set start width and height from the image, because of orientation issues the width is the height and viceversa
 	self:setPos(x, y)
 	self:setSize(settings.sprite:getHeight(), settings.sprite:getWidth())
@@ -79,10 +87,18 @@ function enemy:initEnemy(x, y)
 	-- Calculate collision distance
 	self:setColDist(self:calcColDist(self.w, settings.sx))
 	--self.loadDebug()	-- load debug information
+
+	settings.transitioning = false
+
 end
 
-function enemy:initPlayerGraphics()
-	self:setSprite("enemy.png")
+function enemy:initEnemyGraphics()
+	--self:setSprite(enemyImages[1])
+	for i =1, 3, 1 do
+		settings.sprites[i] = love.graphics.newImage(ents.imgPath .. enemyImages[i])
+	end
+	if not gamePhase then gamePhase = 1 end
+	settings.sprite = settings.sprites[gamePhase]
 end
 
 function enemy:loadDebug()
@@ -107,6 +123,8 @@ end
 function enemy:update(dt)
 	-- update player entity
 	self:rotation(dt)
+
+	enemy:transition()
 
 	if settings.t == true then
 		settings.vx = settings.vx + math.cos((settings.rot))*settings.tRate 
@@ -260,4 +278,20 @@ function enemy:mousepressed(x, y, button)
 	if button == "r" then self:shoot() end
 end
 
+function enemy:transition()
+
+	if not gamePhase then gamePhase = 1 end
+	settings.sprite = settings.sprites[gamePhase]
+
+	local scale = 64/enemySize[gamePhase]
+	settings.ox = enemySize[gamePhase]/2
+	settings.oy = enemySize[gamePhase]/2
+	settings.sx = scale
+	settings.sy = scale
+
+
+end
+
 return enemy;
+
+
