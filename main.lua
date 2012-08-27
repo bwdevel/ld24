@@ -15,12 +15,13 @@ function love.load()
 
 --	local ent=ents.Create("enemy", 600,400)
 --	local ent=ents.Create("enemy", 600,200)
-	local ent=ents.Create("enemy", 200,400)
+--	local ent=ents.Create("enemy", 200,400)
 
 	-- at end of file for prototyping. 
 	--Leave file, but try to move contents to a permanent home once prototyped
 	tempInit()
-	
+
+
 end
 
 
@@ -99,8 +100,11 @@ end
 --------------------------------------------------------------------------------------
 function tempInit()
 
+	-- used to track game phases
 	gamePhase = 1
 
+	
+	-- code to manage background states
 	imgBackground = { }
 
 	imgBackground[1] = love.graphics.newImage("resources/images/background_a.png")
@@ -113,6 +117,16 @@ function tempInit()
 	bgFadeRate = 255
 	bgFadeLevel = 255
 
+
+	-- xpBar code
+	xpBar = {}
+
+	xpBar.x, xpBar.y, xpBar.w, xpBar.h = 200, 550, 400, 25
+
+	xpBar.xp = 1
+	xpBar.dir = 1
+
+
 end
 
 function tempUpdate(dt)
@@ -122,6 +136,17 @@ function tempUpdate(dt)
 			bgFadeLevel = 255
 			bgFade = false
 		end
+	end
+
+	xpBar.xp = xpBar.xp + 25 * xpBar.dir * dt
+
+	-- reverse bar (mockup)
+	if xpBar.xp > 100 then
+		xpBar.xp = 100
+		xpBar.dir = -(xpBar.dir)
+	elseif xpBar.xp < 1 then 
+		xpBar.xp = 1
+		xpBar.dir = -(xpBar.dir) 
 	end
 
 end
@@ -136,6 +161,25 @@ function tempDraw()
 		love.graphics.setColor(255,255,255,bgFadeLevel)
 		love.graphics.draw(imgBackground[bgOld],0,0)
 	end
+
+
+	if gamePhase == 1 then
+		love.graphics.setColor(108,108,108,255)
+		love.graphics.rectangle("fill", xpBar.x-4, xpBar.y-4, xpBar.w+8, xpBar.h+8)
+
+		love.graphics.setColor(104,55,45,255)
+		love.graphics.rectangle("fill", xpBar.x, xpBar.y, xpBar.w*xpBar.xp/100, xpBar.h)
+	end
+
+		if gamePhase == 1 then
+		love.graphics.setColor(108,108,108,255)
+		love.graphics.rectangle("fill", xpBar.x-4, xpBar.y-4, xpBar.w+8, xpBar.h+8)
+
+		love.graphics.setColor(104,55,45,255)
+		love.graphics.rectangle("fill", xpBar.x, xpBar.y, xpBar.w*xpBar.xp/100, xpBar.h)
+	end
+
+	
 end
 
 function tempKeyPress(key, unicode)
