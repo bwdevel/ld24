@@ -13,6 +13,9 @@ local bullets = {}
 local bulletSpeed = 250
 local bulletDamage = 5
 
+-- Experience gain
+local experienceGain = 5
+
 function enemy:setSprite(sprite)
 	if sprite then
 --		settings.sprite = love.graphics.newImage(ents.imgPath .. sprite)
@@ -25,6 +28,10 @@ end
 
 function enemy:getBullets()
 	return bullets;
+end
+
+function enemy:getExperienceGain()
+	return experienceGain;
 end
 
 --      ==          == == ==       ==       == ==
@@ -49,6 +56,9 @@ function enemy:initEnemy(x, y)
 	-- Set maximum allowed health and initiate full health
 	self.maxHealth = 100
 	self.health = self.maxHealth
+	
+	-- set Experience gain for killing this enemy
+	self.experienceGain = 5
 	
 	width = ents.window.width	-- get the window width
 	height = ents.window.height -- get the window height

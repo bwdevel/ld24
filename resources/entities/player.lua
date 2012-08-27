@@ -76,6 +76,7 @@ function player:initPlayer(x, y)
 	self.maxHealth = 200
 	self.health = self.maxHealth
 	self.playerKilled = false
+	self.experience = 0
 	
 	width = ents.window.width	-- get the window width
 	height = ents.window.height -- get the window height
@@ -274,7 +275,7 @@ function player:checkCollision()
 					-- Calculate combined collision distance
 					local colDist = entity.getColDist() + self.getColDist()
 					if entDist <= colDist then
-						print("Collision occured between: [" .. self.id .. "] [" .. entity.id .. "]")
+						--print("Collision occured between: [" .. self.id .. "] [" .. entity.id .. "]")
 					end
 					
 					-- Check collisions between bullets and entities
@@ -286,7 +287,8 @@ function player:checkCollision()
 						local colDist = entity.getColDist()
 						if entDist <= colDist then
 							-- Damage entity
-							entity:modifyHealth(bullet.damage, true)
+							local reward = entity:modifyHealth(bullet.damage, true)
+							if (reward) then self:modifyExperience(entity.getExperienceGain()) end
 							-- Remove bullet by setting coordinates out of bounds
 							bullet.x = love.graphics.getWidth() * 3
 							bullet.y = love.graphics.getHeight() * 3
@@ -302,7 +304,7 @@ function player:checkCollision()
 end
 
 function player:modifyHealth(value, damage)
-	-- Increase or decrease health
+	-- Increase or decrease health and return if entity should be rewarded
 	if damage then
 		self.health = self.health - value
 	else
@@ -315,13 +317,24 @@ function player:modifyHealth(value, damage)
 		-- entity dead!
 		if self.type ~= "player" then
 			ents.Destroy(self.id)
+			return true;
 		else
 			-- Hide player if killed
 			self.playerKilled = true
-			print("killed!")
 		end 
 	end
+	return false;
 end
+
+function player:modifyExperience(value, decrease)
+	-- Increase or decrease experience
+	if decrease then
+		self.experience = self.experience - value
+	else
+		self.experience = self.experience + value
+	end
+end
+	
 
 --     == ==       == ==          ==       ==    ==
 --     ==    ==    ==    ==    ==    ==    ==    ==
@@ -345,7 +358,9 @@ function player:draw()
 	
 		-- temporary HP count
 		love.graphics.setColor(255,0,0,255)
-		love.graphics.print(self.health, self.x + 15, self.y + 15)
+		love.graphics.print(tostring(self.health), self.x + 15, self.y + 15)
+		love.graphics.setColor(0, 255, 255, 255)
+		love.graphics.print(tostring(self.experience), self.x - 40, self.y + 15)
 	
 		-- draw debug info
 		--self:drawDebug(debug.state)
