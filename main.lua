@@ -118,7 +118,7 @@ function tempInit()
 	music[3] = love.audio.newSource("resources/music/area_03.mp3")
 	music[4] = love.audio.newSource("resources/music/credits_01.mp3")
 
-	currentMusic = 0
+	currentMusic = 1
 
 
 
@@ -137,8 +137,11 @@ function tempInit()
 	xpBar.xp = 1
 	xpBar.dir = 1
 
-	musicPlaying = false
 
+
+	music[currentMusic]:setVolume(0.75)
+	love.audio.play(music[currentMusic])
+	musicPlaying = true
 
 end
 
@@ -281,7 +284,9 @@ function tempKeyPress(key, unicode)
 		musicPlaying = true
 	end	
 
-
+	if key == "7" then
+		gamePhase = gamePhase +1
+	end
 
 
 
@@ -295,11 +300,11 @@ function phaseTransition()
 		if bgCurrent > #imgBackground then bgCurrent = 1 end
 		bgFade = true
 		gamePhase = gamePhase + 1
-		--if gamePhase > 3 then gamePhase = 1 end
+		if gamePhase > 3 then gamePhase = 1 end
 
 
 -- stuff for when marty leaves
-	elseif gamePhase > 4 then
+	elseif gamePhase > 3 then
 		gamePhase = 1
 	end
 

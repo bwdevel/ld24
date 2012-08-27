@@ -379,7 +379,7 @@ end
 
 function player:draw()
 	-- Only draw player if not killed
-	if not self.playerKilled then	
+	if not self.playerKilled and (gamePhase >=1 and gamePhase<=3) then
 		love.graphics.setColor(255,255,255,255)
 
 		-- draw bullets
