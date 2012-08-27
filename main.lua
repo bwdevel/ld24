@@ -13,9 +13,9 @@ function love.load()
 	-- disabled until marty fixes repo
 	ent=ents.Create("player", 200,200)
 
---	local ent=ents.Create("enemy", 600,400)
---	local ent=ents.Create("enemy", 600,200)
---	local ent=ents.Create("enemy", 200,400)
+	local ent=ents.Create("enemy", 600,400)
+	local ent=ents.Create("enemy", 600,200)
+	local ent=ents.Create("enemy", 200,400)
 
 	-- at end of file for prototyping. 
 	--Leave file, but try to move contents to a permanent home once prototyped
@@ -96,7 +96,7 @@ function love.quit()
 end
 
 --------------------------------------------------------------------------------------
----- everything below this should probably be moved to it's home after prototyping ---
+---- everything below this should probably be moved to its home after prototyping ----
 --------------------------------------------------------------------------------------
 function tempInit()
 
@@ -110,6 +110,10 @@ function tempInit()
 	imgBackground[1] = love.graphics.newImage("resources/images/background_a.png")
 	imgBackground[2] = love.graphics.newImage("resources/images/background_ba.png")
 	imgBackground[3] = love.graphics.newImage("resources/images/background_c.png")
+
+	music = love.audio.newSource("resources/music/area_01.mp3")
+
+
 
 	bgCurrent = 1
 	bgOld = #imgBackground
@@ -125,6 +129,8 @@ function tempInit()
 
 	xpBar.xp = 1
 	xpBar.dir = 1
+
+	musicPlaying = false
 
 
 end
@@ -158,14 +164,23 @@ function tempDraw()
 	love.graphics.setBackgroundColor(0,0,0)
 
 	love.graphics.setColor(255,255,255,255)
-	love.graphics.draw(imgBackground[bgCurrent],0,0)
 
+	--- background code
+	if gamePhase >= 1 and gamePhase <= 3 then
+		love.graphics.draw(imgBackground[bgCurrent],0,0)
+	
+	-- fade to white for end of game
+	elseif gamePhase == 4 then
+		love.graphics.rectangle("fill", 0, 0, 800,600)
+	end
+
+	-- background fading code
 	if bgFade == true then
 		love.graphics.setColor(255,255,255,bgFadeLevel)
 		love.graphics.draw(imgBackground[bgOld],0,0)
 	end
 
-
+	-- xp bar code
 	if gamePhase == 1 then
 		love.graphics.setColor(108,108,108,255)
 		love.graphics.rectangle("fill", xpBar.x-4, xpBar.y-4, xpBar.w+8, xpBar.h+8)
@@ -178,7 +193,7 @@ function tempDraw()
 
 		love.graphics.setColor(172,16,0,255)
 		love.graphics.rectangle("fill", xpBar.x, xpBar.y, xpBar.w*xpBar.xp/100, xpBar.h)
-	else
+	elseif gamePhase == 3 then
 		local red = 0
 		local tmpXP = xpBar.xp
 		if tmpXP < 50 then red = 255
@@ -203,13 +218,14 @@ function tempDraw()
 
 		love.graphics.setColor(255,255,255,92)
 		love.graphics.rectangle("fill", xpBar.x, xpBar.y+5, xpBar.w*xpBar.xp/100, 10)
-
 	end
 
 end
 
 function tempKeyPress(key, unicode)
-	if key == "5" and bgFade == false then
+
+------ hold on to this for now; may need it to test transitioning
+--	if key == "5" and bgFade == false then
 --		bgOld = bgCurrent
 --		bgCurrent = bgCurrent + 1
 --		if bgCurrent > #imgBackground then bgCurrent = 1 end
@@ -217,18 +233,41 @@ function tempKeyPress(key, unicode)
 --		gamePhase = gamePhase + 1
 --		if gamePhase > 3 then gamePhase = 1 end
 --		print(gamePhase)
-		phaseTransition()
+--		phaseTransition()
+--	end
+----------------------------------------------------------------
+
+	if key == "5" then
+		if musicPlaying == true then
+			music:setVolume(0)
+			love.audio.stop(music)
+			musicPlaying = false
+			print("music off")
+		else
+			music:setVolume(0.75)
+			love.audio.play(music)
+			musicPlaying = true
+			print("music on")
+		end
 	end
+
 
 end
 
 function phaseTransition()
-	bgOld = bgCurrent
-	bgCurrent = bgCurrent +1
-	if bgCurrent > #imgBackground then bgCurrent = 1 end
-	bgFade = true
-	gamePhase = gamePhase + 1
 
-	if gamePhase > 3 then gamePhase = 1 end
+	if gamePhase >= 1 and gamePhase <= 3 then	
+		bgOld = bgCurrent
+		bgCurrent = bgCurrent +1
+		if bgCurrent > #imgBackground then bgCurrent = 1 end
+		bgFade = true
+		gamePhase = gamePhase + 1
+		if gamePhase > 3 then gamePhase = 1 end
+
+-- stuff for when marty leaves
+--	elseif gamePhase > 3 then
+--		gamePhase = 1
+	end
+
 end
 
