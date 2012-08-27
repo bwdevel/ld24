@@ -10,7 +10,12 @@ function love.load()
 	require("resources/entityFactory")
 	ents.Startup()
 
+	-- disabled until marty fixes repo
 	local ent=ents.Create("player", 200,200)
+
+	-- at end of file for prototyping. 
+	--Leave file, but try to move contents to a permanent home once prototyped
+	tempInit()
 	
 end
 
@@ -38,6 +43,7 @@ end
 
 function love.draw()
 	-- Draw entities
+	tempDraw()
 	ents:draw()
 end
 
@@ -80,5 +86,23 @@ function love.quit()
 end
 
 
+---- everything below this should probably be moved into something useful
+
+function tempInit()
+print("init works")
+
+imgBackground = { }
+
+imgBackground[1] = love.graphics.newImage("resources/images/background_a.png")
+imgBackground[2] = love.graphics.newImage("resources/images/background_b.png")
+imgBackground[3] = love.graphics.newImage("resources/images/background_c.png")
 
 
+end
+
+
+function tempDraw()
+
+	love.graphics.setColor(255,255,255,255)
+	love.graphics.draw(imgBackground[3],0,0)
+end
