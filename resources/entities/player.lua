@@ -12,6 +12,8 @@ local bullets = {}
 local bulletSpeed = 250
 local bulletDamage = 10
 
+local experience = 0
+
 function player:setSize( w, h)
 	self.w = w
 	self.h = h
@@ -38,6 +40,14 @@ function player:getBullets()
 	return bullets;
 end
 
+function player:getExperience()
+	return experience;
+end
+
+function player:setExperience(value)
+	self.experience = self.experience + value
+end
+
 --      ==          == == ==       ==       == ==
 --      ==          ==    ==    ==    ==    ==    ==
 --      ==          ==    ==    == == ==    ==    ==
@@ -47,7 +57,7 @@ end
 function player:load(x, y)
 	self:initPlayer(x, y)
 	
-	self:setMaxMountPoints(1)
+	self:setMaxMountPoints(0)
 	self:initMountPoints(x, y)
 end
 
@@ -59,7 +69,7 @@ function player:initPlayer(x, y)
 	self:setSize(settings.sprite:getHeight(), settings.sprite:getWidth())
 	
 	-- Set maximum allowed health and initiate full health	
-	self.maxHealth = 100
+	self.maxHealth = 200
 	self.health = self.maxHealth
 	
 	width = ents.window.width	-- get the window width
@@ -237,7 +247,7 @@ function player:shoot()
 	local bulletDx = bulletSpeed * math.cos(settings.rot)
 	local bulletDy = bulletSpeed * math.sin(settings.rot)
 
-	table.insert(bullets, {x = self.x, y = self.y, dx = bulletDx, dy = bulletDy})
+	table.insert(bullets, {x = self.x, y = self.y, dx = bulletDx, dy = bulletDy, damage = bulletDamage})
 end 
 
 function player:checkCollision()
@@ -259,14 +269,19 @@ function player:checkCollision()
 				end
 				
 				-- Check collisions between bullets and entities
-				for i, bullet in pairs(self:getBullets()) do
+				for j, bullet in pairs(self:getBullets()) do
 					-- Calculate distance between bullets and entities
 					--print("checkCollision: [" .. x .. "] [" .. y .. "] [" .. self.x .. "] [" .. self.y .. "]")
 					local entDist = ents:getDistance(x, y, bullet.x, bullet.y)
 					-- Calculate combined collision distance
 					local colDist = entity.getColDist()
 					if entDist <= colDist then
-						print("Collision occured between: bullet-[" .. self.id .. "] [" .. entity.id .. "]")
+						-- Damage entity
+						entity:modifyHealth(bullet.damage, true)
+						-- Remove bullet by setting coordinates out of bounds
+						bullet.x = love.graphics.getWidth() * 3
+						bullet.y = love.graphics.getHeight() * 3
+						--print("Collision occured between: bullet-[" .. self.id .. "] [" .. entity.id .. "] [" .. bullet.damage .. "]")
 					end		
 				end
 
@@ -286,8 +301,11 @@ function player:modifyHealth(value, damage)
 	end 
 	
 	-- Check health status
-	if self.health > self.MaxHealth then self.health = self.maxHealth end
-	if self.health <= 0 then self.health = 0 end -- entity dead!
+	if self.health > self.maxHealth then self.health = self.maxHealth end
+	if self.health <= 0 then 
+		-- entity dead!
+		ents.Destroy(self.id)
+	end
 end
 
 --     == ==       == ==          ==       ==    ==

@@ -11,7 +11,7 @@ settings.sprites = {}
 -- Enemy bullets
 local bullets = {}
 local bulletSpeed = 250
-local bulletDamage = 10
+local bulletDamage = 5
 
 function enemy:setSprite(sprite)
 	if sprite then
@@ -232,8 +232,8 @@ function enemy:shoot()
 	local bulletDx = bulletSpeed * math.cos(settings.rot)
 	local bulletDy = bulletSpeed * math.sin(settings.rot)
 
-	table.insert(bullets, {x = self.x, y = self.y, dx = bulletDx, dy = bulletDy})
-end 
+	table.insert(bullets, {x = self.x, y = self.y, dx = bulletDx, dy = bulletDy, damage = bulletDamage})
+end
 
 --     == ==       == ==          ==       ==    ==
 --     ==    ==    ==    ==    ==    ==    ==    ==
