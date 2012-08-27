@@ -13,6 +13,10 @@ function love.load()
 	-- disabled until marty fixes repo
 	local ent=ents.Create("player", 200,200)
 
+	local ent=ents.Create("enemy", 600,400)
+	local ent=ents.Create("enemy", 600,200)
+	local ent=ents.Create("enemy", 200,400)
+
 	-- at end of file for prototyping. 
 	--Leave file, but try to move contents to a permanent home once prototyped
 	tempInit()
