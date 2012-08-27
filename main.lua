@@ -111,7 +111,14 @@ function tempInit()
 	imgBackground[2] = love.graphics.newImage("resources/images/background_ba.png")
 	imgBackground[3] = love.graphics.newImage("resources/images/background_c.png")
 
-	music = love.audio.newSource("resources/music/area_01.mp3")
+	music = {}
+	music[0] = love.audio.newSource("resources/music/title_01.mp3")
+	music[1] = love.audio.newSource("resources/music/area_01.mp3")
+	music[2] = love.audio.newSource("resources/music/area_02.mp3")
+	music[3] = love.audio.newSource("resources/music/area_03.mp3")
+	music[4] = love.audio.newSource("resources/music/credits_01.mp3")
+
+	currentMusic = 0
 
 
 
@@ -252,17 +259,30 @@ function tempKeyPress(key, unicode)
 
 	if key == "5" then
 		if musicPlaying == true then
-			music:setVolume(0)
-			love.audio.stop(music)
+			music[currentMusic]:setVolume(0)
+			love.audio.stop(music[currentMusic])
 			musicPlaying = false
 			print("music off")
 		else
-			music:setVolume(0.75)
-			love.audio.play(music)
+			music[currentMusic]:setVolume(0.75)
+			love.audio.play(music[currentMusic])
 			musicPlaying = true
 			print("music on")
 		end
 	end
+
+	if key == "6" then
+		music[currentMusic]:setVolume(0)
+		love.audio.stop(music[currentMusic])
+		currentMusic = currentMusic + 1
+		if currentMusic > #music then currentMusic = 0 end
+		music[currentMusic]:setVolume(0.75)
+		love.audio.play(music[currentMusic])
+		musicPlaying = true
+	end	
+
+
+
 
 
 end
