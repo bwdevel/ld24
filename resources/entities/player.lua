@@ -12,7 +12,11 @@ local bullets = {}
 local bulletSpeed = 250
 local bulletDamage = 10
 
+-- Experience
 local experience = 0
+
+-- Killed
+local playerKilled = false
 
 function player:setSize( w, h)
 	self.w = w
@@ -45,7 +49,7 @@ function player:getExperience()
 end
 
 function player:setExperience(value)
-	self.experience = self.experience + value
+	experience = experience + value
 end
 
 --      ==          == == ==       ==       == ==
@@ -71,6 +75,7 @@ function player:initPlayer(x, y)
 	-- Set maximum allowed health and initiate full health	
 	self.maxHealth = 200
 	self.health = self.maxHealth
+	self.playerKilled = false
 	
 	width = ents.window.width	-- get the window width
 	height = ents.window.height -- get the window height
@@ -155,33 +160,36 @@ end
 --      == == ==    ==          == ==       ==    ==       ==       == == ==
 
 function player:update(dt)
-	-- update the player entity
-	self:updatePlayer(dt)
-
-	if settings.engines == 1 then
-		self:setSprite(settings.guns)
-	elseif settings.engines == 2 then
-		self:setSprite(settings.guns+3)
-	else
-		self:setSprite(settings.guns+6)
-	end
-
+	-- Only update player if not killed
+	if not self.playerKilled then
+		-- update the player entity
+		self:updatePlayer(dt)
 	
-	-- update mountpoints
-	--- limited use
-	self:updateMounts(dt, self.x, self.y, settings.rot, settings.sx, settings.sy)
-
-	-- Calculate collision distance
-	self:setColDist(self:calcColDist(self.w, settings.sx))
+		if settings.engines == 1 then
+			self:setSprite(settings.guns)
+		elseif settings.engines == 2 then
+			self:setSprite(settings.guns+3)
+		else
+			self:setSprite(settings.guns+6)
+		end
 	
-	-- Check for collisions
-	self:checkCollision()
+		
+		-- update mountpoints
+		--- limited use
+		self:updateMounts(dt, self.x, self.y, settings.rot, settings.sx, settings.sy)
 	
-	-- update debug info
-	--if debug.state then
-	--	debug.timer = debug.timer + dt
-	--	if debug.timer > debug.delay then debug.timer = 0 end
-	--end
+		-- Calculate collision distance
+		self:setColDist(self:calcColDist(self.w, settings.sx))
+		
+		-- Check for collisions
+		self:checkCollision()
+		
+		-- update debug info
+		--if debug.state then
+		--	debug.timer = debug.timer + dt
+		--	if debug.timer > debug.delay then debug.timer = 0 end
+		--end
+	end 
 end
 
 function player:updatePlayer(dt)
@@ -253,38 +261,39 @@ end
 function player:checkCollision()
 	for i,entity in pairs(ents.objects) do
 		if entity then
-			-- only check on enities other then ourself
-			if entity.id ~= self.id then 
-				-- Get position of entity
-				local x,y = entity.getPos()
-				
-				-- Check collisions between entities
-				-- Calculate distance between entities
-				--print("checkCollision: [" .. x .. "] [" .. y .. "] [" .. self.x .. "] [" .. self.y .. "]")
-				local entDist = ents:getDistance(x, y, self.x, self.y)
-				-- Calculate combined collision distance
-				local colDist = entity.getColDist() + self.getColDist()
-				if entDist <= colDist then
-					print("Collision occured between: [" .. self.id .. "] [" .. entity.id .. "]")
-				end
-				
-				-- Check collisions between bullets and entities
-				for j, bullet in pairs(self:getBullets()) do
-					-- Calculate distance between bullets and entities
+			if not entity.playerKilled then
+				-- only check on enities other then ourself
+				if entity.id ~= self.id then 
+					-- Get position of entity
+					local x,y = entity.getPos()
+					
+					-- Check collisions between entities
+					-- Calculate distance between entities
 					--print("checkCollision: [" .. x .. "] [" .. y .. "] [" .. self.x .. "] [" .. self.y .. "]")
-					local entDist = ents:getDistance(x, y, bullet.x, bullet.y)
+					local entDist = ents:getDistance(x, y, self.x, self.y)
 					-- Calculate combined collision distance
-					local colDist = entity.getColDist()
+					local colDist = entity.getColDist() + self.getColDist()
 					if entDist <= colDist then
-						-- Damage entity
-						entity:modifyHealth(bullet.damage, true)
-						-- Remove bullet by setting coordinates out of bounds
-						bullet.x = love.graphics.getWidth() * 3
-						bullet.y = love.graphics.getHeight() * 3
-						--print("Collision occured between: bullet-[" .. self.id .. "] [" .. entity.id .. "] [" .. bullet.damage .. "]")
-					end		
+						print("Collision occured between: [" .. self.id .. "] [" .. entity.id .. "]")
+					end
+					
+					-- Check collisions between bullets and entities
+					for j, bullet in pairs(self:getBullets()) do
+						-- Calculate distance between bullets and entities
+						--print("checkCollision: [" .. x .. "] [" .. y .. "] [" .. self.x .. "] [" .. self.y .. "]")
+						local entDist = ents:getDistance(x, y, bullet.x, bullet.y)
+						-- Calculate combined collision distance
+						local colDist = entity.getColDist()
+						if entDist <= colDist then
+							-- Damage entity
+							entity:modifyHealth(bullet.damage, true)
+							-- Remove bullet by setting coordinates out of bounds
+							bullet.x = love.graphics.getWidth() * 3
+							bullet.y = love.graphics.getHeight() * 3
+							--print("Collision occured between: bullet-[" .. self.id .. "] [" .. entity.id .. "] [" .. bullet.damage .. "]")
+						end		
+					end
 				end
-
 			end			
 		else
 			print("Error: Invalid entity in global entity list!")
@@ -304,7 +313,13 @@ function player:modifyHealth(value, damage)
 	if self.health > self.maxHealth then self.health = self.maxHealth end
 	if self.health <= 0 then 
 		-- entity dead!
-		ents.Destroy(self.id)
+		if self.type ~= "player" then
+			ents.Destroy(self.id)
+		else
+			-- Hide player if killed
+			self.playerKilled = true
+			print("killed!")
+		end 
 	end
 end
 
@@ -315,23 +330,26 @@ end
 --     == ==       ==   ==     ==    ==    ==    ==
 
 function player:draw()
-	love.graphics.setColor(255,255,255,255)
+	-- Only draw player if not killed
+	if not self.playerKilled then	
+		love.graphics.setColor(255,255,255,255)
 
-	-- draw player entity
-	--print("player_draw:" .. self.x .. " " .. self.y .. " " .. settings.rot .. " " .. settings.sx .. " " .. settings.sy .. " " .. settings.ox .. " " .. settings.oy)
-	love.graphics.draw(settings.sprite,	self.x,	self.y,	settings.rot,	settings.sx,	settings.sy,	settings.ox,	settings.oy)	
+		-- draw player entity
+		--print("player_draw:" .. self.x .. " " .. self.y .. " " .. settings.rot .. " " .. settings.sx .. " " .. settings.sy .. " " .. settings.ox .. " " .. settings.oy)
+		love.graphics.draw(settings.sprite,	self.x,	self.y,	settings.rot,	settings.sx,	settings.sy,	settings.ox,	settings.oy)	
 
-	-- draw bullets
-	for i, v in ipairs(bullets) do
-		love.graphics.circle("fill", v["x"], v["y"], 3)
+		-- draw bullets
+		for i, v in ipairs(bullets) do
+			love.graphics.circle("fill", v["x"], v["y"], 3)
+		end
+	
+		-- temporary HP count
+		love.graphics.setColor(255,0,0,255)
+		love.graphics.print(self.health, self.x + 15, self.y + 15)
+	
+		-- draw debug info
+		--self:drawDebug(debug.state)
 	end
-	
-	-- temporary HP count
-	love.graphics.setColor(255,0,0,255)
-	love.graphics.print(self.health, self.x + 15, self.y + 15)
-	
-	-- draw debug info
-	--self:drawDebug(debug.state)	
 end
 
 function player:drawDebug(bool)
