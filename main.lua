@@ -11,7 +11,7 @@ function love.load()
 	ents.Startup()
 
 	-- disabled until marty fixes repo
-	local ent=ents.Create("player", 200,200)
+	ent=ents.Create("player", 200,200)
 
 --	local ent=ents.Create("enemy", 600,400)
 --	local ent=ents.Create("enemy", 600,200)
@@ -138,12 +138,15 @@ function tempUpdate(dt)
 		end
 	end
 
-	xpBar.xp = xpBar.xp + 25 * xpBar.dir * dt
+	xpBar.xp = xpBar.xp + 40 * dt
 
 	-- reverse bar (mockup)
 	if xpBar.xp > 100 then
-		xpBar.xp = 100
-		xpBar.dir = -(xpBar.dir)
+		xpBar.xp = 0
+--		xpBar.dir = -(xpBar.dir)
+--		gamePhase = gamePhase + 1
+--		if gamePhase > 3 then gamePhase =1 end
+		phaseTransition()
 	elseif xpBar.xp < 1 then 
 		xpBar.xp = 1
 		xpBar.dir = -(xpBar.dir) 
@@ -169,29 +172,63 @@ function tempDraw()
 
 		love.graphics.setColor(104,55,45,255)
 		love.graphics.rectangle("fill", xpBar.x, xpBar.y, xpBar.w*xpBar.xp/100, xpBar.h)
-	end
-
-		if gamePhase == 1 then
-		love.graphics.setColor(108,108,108,255)
+	elseif gamePhase == 2 then
+		love.graphics.setColor(0,0,0,255)
 		love.graphics.rectangle("fill", xpBar.x-4, xpBar.y-4, xpBar.w+8, xpBar.h+8)
 
-		love.graphics.setColor(104,55,45,255)
+		love.graphics.setColor(172,16,0,255)
 		love.graphics.rectangle("fill", xpBar.x, xpBar.y, xpBar.w*xpBar.xp/100, xpBar.h)
+	else
+		local red = 0
+		local tmpXP = xpBar.xp
+		if tmpXP < 50 then red = 255
+		else
+			tmpXP = tmpXP - 50
+			red = 255 - 255 * (tmpXP/50)
+		end
+
+		local green = 0
+		tmpXP = xpBar.xp
+		if tmpXP > 50 then green = 255
+		else
+			if tmpXP < 0 then tmpXP = 0 end
+			green = 255 * tmpXP/50
+		end
+
+		love.graphics.setColor(0,0,0,255)
+		love.graphics.rectangle("fill", xpBar.x-4, xpBar.y-4, xpBar.w+8, xpBar.h+8)
+
+		love.graphics.setColor(red,green,0,255)
+		love.graphics.rectangle("fill", xpBar.x, xpBar.y, xpBar.w*xpBar.xp/100, xpBar.h)
+
+		love.graphics.setColor(255,255,255,92)
+		love.graphics.rectangle("fill", xpBar.x, xpBar.y+5, xpBar.w*xpBar.xp/100, 10)
+
 	end
 
-	
 end
 
 function tempKeyPress(key, unicode)
 	if key == "5" and bgFade == false then
-		bgOld = bgCurrent
-		bgCurrent = bgCurrent + 1
-		if bgCurrent > #imgBackground then bgCurrent = 1 end
-		bgFade = true
-		gamePhase = gamePhase + 1
-		if gamePhase > 3 then gamePhase = 1 end
-		print(gamePhase)
+--		bgOld = bgCurrent
+--		bgCurrent = bgCurrent + 1
+--		if bgCurrent > #imgBackground then bgCurrent = 1 end
+--		bgFade = true
+--		gamePhase = gamePhase + 1
+--		if gamePhase > 3 then gamePhase = 1 end
+--		print(gamePhase)
+		phaseTransition()
 	end
 
+end
+
+function phaseTransition()
+	bgOld = bgCurrent
+	bgCurrent = bgCurrent +1
+	if bgCurrent > #imgBackground then bgCurrent = 1 end
+	bgFade = true
+	gamePhase = gamePhase + 1
+
+	if gamePhase > 3 then gamePhase = 1 end
 end
 
